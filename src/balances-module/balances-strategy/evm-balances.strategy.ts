@@ -12,16 +12,15 @@ import { ChainService } from '../../chain-module/chain.service';
 export class EvmBalancesProvider implements BalancesProvider {
   constructor(private readonly chainService: ChainService) {}
 
-  public async getBalance(accountAddress: string) {
+  public async getBalance(accountAddress: string, test: boolean = false) {
     const balances: Balances[] = [];
     for (const evmChain of SupportedEvmChains) {
-      console.log('fetching evm balances for chain ', evmChain);
       const userBalances = await this.fetchChainBalances(
         accountAddress,
         evmChain,
+        test,
       );
 
-      console.log({ userBalances });
       balances.push(...userBalances);
     }
 
@@ -31,15 +30,19 @@ export class EvmBalancesProvider implements BalancesProvider {
   private async fetchChainBalances(
     walletAddress: string,
     chainName: supportedChains,
+    test: boolean = false,
   ): Promise<Balances[]> {
     const chainInstance = await this.chainService.loadChain(chainName);
-    const provider = new JsonRpcProvider(chainInstance.rpcUrl);
+    const rpc = test ? chainInstance.testnet.rpcUrl : chainInstance.rpcUrl;
+    const provider = new JsonRpcProvider(rpc);
 
     const userBalances: Balances[] = [];
 
+    console.log();
+
     const balances = (
       await axios.request({
-        url: chainInstance.rpcUrl,
+        url: rpc,
         method: 'POST',
         data: {
           id: 1,
@@ -48,13 +51,15 @@ export class EvmBalancesProvider implements BalancesProvider {
           params: [{ wallet: walletAddress }],
         },
       })
-    ).data?.result;
+    ).data.result;
+
+    console.log({ balances });
 
     const erc20Balances = balances?.result?.map((balance) =>
       this.formatBalances(balance, walletAddress),
     );
 
-    if (erc20Balances?.length) userBalances.push(erc20Balances);
+    if (erc20Balances?.length) userBalances.push(...erc20Balances);
 
     const userNativeBalances = await provider.getBalance(walletAddress);
 

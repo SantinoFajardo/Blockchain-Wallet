@@ -13,7 +13,10 @@ export class BalancesService {
     private readonly walletService: WalletService,
   ) {}
 
-  public async fetchUserBalances(userId: string): Promise<Balances[]> {
+  public async fetchUserBalances(
+    userId: string,
+    test: boolean = false,
+  ): Promise<Balances[]> {
     const supportedChainsList = Object.values(supportedChains);
 
     const userBalances = [];
@@ -28,6 +31,7 @@ export class BalancesService {
 
       const chainBalance = await this.balancesStrategy.fetchBalances(
         userWallet.address,
+        test,
       );
 
       userBalances.push(...chainBalance);

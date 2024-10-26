@@ -22,9 +22,12 @@ export class BalancesStrategy {
     }
   }
 
-  public async fetchBalances(accountAddress: string): Promise<Balances[]> {
+  public async fetchBalances(
+    accountAddress: string,
+    test: boolean = false,
+  ): Promise<Balances[]> {
     try {
-      return await this.strategy.getBalance(accountAddress);
+      return await this.strategy.getBalance(accountAddress, test);
     } catch (error) {
       return [];
     }
@@ -41,5 +44,8 @@ export interface Balances {
 }
 
 export abstract class BalancesProvider {
-  abstract getBalance(accountAddress: string): Promise<Balances[]>;
+  abstract getBalance(
+    accountAddress: string,
+    test?: boolean,
+  ): Promise<Balances[]>;
 }

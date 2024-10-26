@@ -6,9 +6,10 @@ import { BalancesController } from './balances.controller';
 import { WalletModule } from '../wallets-module/wallets.module';
 import { BtcBalancesProvider } from './balances-strategy/btc-balances.strategy';
 import { ChainsModule } from '../chain-module/chains.module';
+import { JwtAuthModule } from '../jwt-module/jwt.module';
 
 @Module({
-  imports: [WalletModule, ChainsModule],
+  imports: [WalletModule, ChainsModule, JwtAuthModule],
   controllers: [BalancesController],
   providers: [
     BalancesStrategy,
